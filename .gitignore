@@ -1,0 +1,15 @@
+# Maven
+target/
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Kafka Streams state
+/tmp/kafka-streams*
