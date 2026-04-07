@@ -1,0 +1,14 @@
+{
+  "type": "record",
+  "name": "BroadcastEnvelope",
+  "namespace": "rotr.avro",
+  "fields": [
+    { "name": "eventType", "type": "string" },
+    { "name": "turn", "type": "int" },
+    { "name": "timestamp", "type": "long" },
+    { "name": "winner", "type": ["null", "string"], "default": null },
+    { "name": "cause", "type": ["null", "string"], "default": null },
+    { "name": "regionsJson", "type": ["null", "string"], "default": null },
+    { "name": "unitsJson", "type": ["null", "string"], "default": null }
+  ]
+}
