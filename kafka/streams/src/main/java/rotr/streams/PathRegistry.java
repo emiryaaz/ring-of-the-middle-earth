@@ -19,6 +19,13 @@ public class PathRegistry {
             Map.entry("mordor-to-mount-doom", Set.of("mordor", "mount-doom"))
     );
 
+    private static final Set<String> BLOCKED_PATHS = Set.of(
+        "bree-to-rivendell"
+    );
+
+    public static boolean isBlocked(String pathId) {
+    return BLOCKED_PATHS.contains(pathId);
+    }
     private PathRegistry() {
     }
 

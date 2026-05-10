@@ -51,6 +51,10 @@ if ("TURN_TICK".equals(order.orderType)) {
     }
 
     String currentPathId = unit.route[unit.routeIdx];
+    if (PathRegistry.isBlocked(currentPathId)) {
+    System.out.println("Path is blocked, unit cannot move: " + currentPathId);
+    return;
+}
     String nextRegion = PathRegistry.getOtherEndpoint(currentPathId, unit.region);
 
     if (nextRegion == null) {
