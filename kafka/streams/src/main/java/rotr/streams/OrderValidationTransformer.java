@@ -45,6 +45,12 @@ public class OrderValidationTransformer implements ValueTransformerWithKey<Strin
                 return invalid("WRONG_TURN", "Order turn does not match current turn", rawJson);
             }
 
+            String unitOwnerSide = getKnownUnitOwner(order.unitId);
+
+	if (unitOwnerSide != null && !unitOwnerSide.equals(order.playerId)) {
+	    return invalid("NOT_YOUR_UNIT", "Unit does not belong to submitting player", rawJson);
+	}
+
             String duplicateKey = "turn:" + order.turn + ":unit:" + order.unitId;
 
             if (dedupStore.get(duplicateKey) != null) {
@@ -59,6 +65,14 @@ public class OrderValidationTransformer implements ValueTransformerWithKey<Strin
             return invalid("DESERIALIZATION_ERROR", e.getMessage(), rawJson);
         }
     }
+
+private String getKnownUnitOwner(String unitId) {
+    return switch (unitId) {
+        case "aragorn", "legolas", "gimli", "ring-bearer", "rohan-cavalry", "gondor-army", "gandalf" -> "light";
+        case "witch-king", "nazgul-2", "nazgul-3", "uruk-hai-legion", "saruman", "sauron" -> "dark";
+        default -> null;
+    };
+}
 
     private OrderValidationTopology.ValidationResult invalid(String code, String message, String rawJson) {
         return OrderValidationTopology.ValidationResult.invalid(
