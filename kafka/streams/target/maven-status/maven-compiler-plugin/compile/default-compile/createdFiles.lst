@@ -1,3 +1,4 @@
+rotr/streams/GameEngineApp.class
 rotr/streams/GameUnitRegistry.class
 rotr/streams/PathRegistry.class
 rotr/streams/OrderRecord.class

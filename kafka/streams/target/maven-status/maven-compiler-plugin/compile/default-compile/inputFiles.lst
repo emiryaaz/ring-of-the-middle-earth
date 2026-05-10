@@ -7,4 +7,5 @@
 /home/emirygz/Masaüstü/ring-of-the-middle-earth/kafka/streams/src/main/java/rotr/streams/OrderValidationTransformer.java
 /home/emirygz/Masaüstü/ring-of-the-middle-earth/kafka/streams/src/main/java/rotr/streams/OrderPayload.java
 /home/emirygz/Masaüstü/ring-of-the-middle-earth/kafka/streams/src/main/java/rotr/streams/OrderRecord.java
+/home/emirygz/Masaüstü/ring-of-the-middle-earth/kafka/streams/src/main/java/rotr/streams/GameEngineApp.java
 /home/emirygz/Masaüstü/ring-of-the-middle-earth/kafka/streams/src/main/java/rotr/streams/GameUnitRegistry.java

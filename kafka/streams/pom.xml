@@ -43,21 +43,38 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-            </plugin>
+<build>
+    <plugins>
+        <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.11.0</version>
+        </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.3.0</version>
-                <configuration>
-                    <mainClass>rotr.streams.OrderValidationTopology</mainClass>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-</project>
+        <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.3.0</version>
+        </plugin>
+    </plugins>
+</build>
+
+<profiles>
+    <profile>
+        <id>validation</id>
+
+        <properties>
+            <exec.mainClass>rotr.streams.OrderValidationTopology</exec.mainClass>
+        </properties>
+    </profile>
+
+    <profile>
+        <id>engine</id>
+
+        <properties>
+            <exec.mainClass>rotr.streams.GameEngineApp</exec.mainClass>
+        </properties>
+    </profile>
+</profiles>
+
+</project>      
+
