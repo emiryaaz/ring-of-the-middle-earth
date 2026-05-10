@@ -33,6 +33,42 @@ public class GameEngineApp {
             records.forEach(record -> {
                 try {
                     OrderRecord order = MAPPER.readValue(record.value(), OrderRecord.class);
+
+if ("BLOCK_PATH".equals(order.orderType)) {
+    OrderPayload payload = MAPPER.readValue(order.payload, OrderPayload.class);
+
+    if (payload.pathId == null) {
+        System.out.println("BLOCK_PATH ignored: pathId is missing");
+        return;
+    }
+
+    if (!PathRegistry.exists(payload.pathId)) {
+        System.out.println("BLOCK_PATH ignored: unknown path " + payload.pathId);
+        return;
+    }
+
+    PathRegistry.blockPath(payload.pathId);
+
+    System.out.println("Blocked path: " + payload.pathId);
+}
+
+if ("UNBLOCK_PATH".equals(order.orderType)) {
+    OrderPayload payload = MAPPER.readValue(order.payload, OrderPayload.class);
+
+    if (payload.pathId == null) {
+        System.out.println("UNBLOCK_PATH ignored: pathId is missing");
+        return;
+    }
+
+    if (!PathRegistry.exists(payload.pathId)) {
+        System.out.println("UNBLOCK_PATH ignored: unknown path " + payload.pathId);
+        return;
+    }
+
+    PathRegistry.unblockPath(payload.pathId);
+
+    System.out.println("Unblocked path: " + payload.pathId);
+}
 if ("TURN_TICK".equals(order.orderType)) {
     UnitStateRecord unit = unitStates.get(order.unitId);
 

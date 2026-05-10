@@ -19,9 +19,15 @@ public class PathRegistry {
             Map.entry("mordor-to-mount-doom", Set.of("mordor", "mount-doom"))
     );
 
-    private static final Set<String> BLOCKED_PATHS = Set.of(
-        "bree-to-rivendell"
-    );
+    private static final Set<String> BLOCKED_PATHS = new java.util.HashSet<>();
+
+public static void blockPath(String pathId) {
+    BLOCKED_PATHS.add(pathId);
+}
+
+public static void unblockPath(String pathId) {
+    BLOCKED_PATHS.remove(pathId);
+}
 
     public static boolean isBlocked(String pathId) {
     return BLOCKED_PATHS.contains(pathId);

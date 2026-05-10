@@ -10,6 +10,9 @@ public class GameUnitRegistry {
             Map.entry("legolas", create("legolas", "light", "bree", 0)),
             Map.entry("gimli", create("gimli", "light", "bree", 0)),
 
+            Map.entry("test-unit", create("test-unit", "light", "bree", 0)),
+            Map.entry("test-unit-2", create("test-unit-2", "light", "bree", 0)),
+
             Map.entry("gandalf", create("gandalf", "light", "rohan", 2)),
 
             Map.entry("witch-king", create("witch-king", "dark", "mordor", 0)),
