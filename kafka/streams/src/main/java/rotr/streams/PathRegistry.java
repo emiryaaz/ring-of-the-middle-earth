@@ -21,6 +21,19 @@ public class PathRegistry {
     private PathRegistry() {
     }
 
+    public static String getOtherEndpoint(String pathId, String currentRegion) {
+    Set<String> endpoints = PATH_ENDPOINTS.get(pathId);
+
+    if (endpoints == null || currentRegion == null || !endpoints.contains(currentRegion)) {
+        return null;
+    }
+
+    return endpoints.stream()
+            .filter(region -> !region.equals(currentRegion))
+            .findFirst()
+            .orElse(null);
+}
+
     public static boolean exists(String pathId) {
         return PATH_ENDPOINTS.containsKey(pathId);
     }

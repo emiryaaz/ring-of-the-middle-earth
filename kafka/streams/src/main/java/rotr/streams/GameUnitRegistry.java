@@ -7,7 +7,7 @@ public class GameUnitRegistry {
     private static final Map<String, UnitStateRecord> UNITS = Map.ofEntries(
 
             Map.entry("aragorn", create("aragorn", "light", "bree", 0)),
-            Map.entry("legolas", create("legolas", "light", "mirkwood", 0)),
+            Map.entry("legolas", create("legolas", "light", "bree", 0)),
             Map.entry("gimli", create("gimli", "light", "moria", 0)),
 
             Map.entry("gandalf", create("gandalf", "light", "rohan", 2)),

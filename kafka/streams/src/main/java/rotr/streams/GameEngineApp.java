@@ -17,6 +17,8 @@ public class GameEngineApp {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    private static final java.util.Map<String, UnitStateRecord> unitStates = new java.util.HashMap<>();
+
     public static void main(String[] args) {
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProps());
         KafkaProducer<String, String> producer = new KafkaProducer<>(producerProps());
@@ -31,9 +33,53 @@ public class GameEngineApp {
             records.forEach(record -> {
                 try {
                     OrderRecord order = MAPPER.readValue(record.value(), OrderRecord.class);
+if ("TURN_TICK".equals(order.orderType)) {
+    UnitStateRecord unit = unitStates.get(order.unitId);
 
+    if (unit == null) {
+        unit = GameUnitRegistry.getUnit(order.unitId);
+    }
+
+    if (unit == null) {
+        System.out.println("Unknown unit for tick: " + order.unitId);
+        return;
+    }
+
+    if (unit.route == null || unit.route.length == 0 || unit.routeIdx >= unit.route.length) {
+        System.out.println("Unit has no route to advance: " + order.unitId);
+        return;
+    }
+
+    String currentPathId = unit.route[unit.routeIdx];
+    String nextRegion = PathRegistry.getOtherEndpoint(currentPathId, unit.region);
+
+    if (nextRegion == null) {
+        System.out.println("Unit is not at endpoint of path " + currentPathId + ": " + unit.unitId);
+        return;
+    }
+
+    String previousRegion = unit.region;
+    unit.region = nextRegion;
+    unit.routeIdx++;
+
+    unitStates.put(unit.unitId, unit);
+
+    String eventJson = MAPPER.writeValueAsString(unit);
+
+    ProducerRecord<String, String> event =
+            new ProducerRecord<>("game.events.unit", unit.unitId, eventJson);
+
+    producer.send(event);
+
+    System.out.println("Moved " + unit.unitId + " from " + previousRegion + " to " + nextRegion + ": " + eventJson);
+}
 if ("ASSIGN_ROUTE".equals(order.orderType)) {
     UnitStateRecord unit = GameUnitRegistry.getUnit(order.unitId);
+    
+    UnitStateRecord existing = unitStates.get(order.unitId);
+if (existing != null) {
+    unit = existing;
+}
 
     if (unit == null) {
         System.out.println("Unknown unit: " + order.unitId);
@@ -52,6 +98,7 @@ if ("ASSIGN_ROUTE".equals(order.orderType)) {
     ProducerRecord<String, String> event =
             new ProducerRecord<>("game.events.unit", order.unitId, eventJson);
 
+    unitStates.put(order.unitId, unit);
     producer.send(event);
 
     System.out.println("Produced unit event for " + order.unitId + ": " + eventJson);

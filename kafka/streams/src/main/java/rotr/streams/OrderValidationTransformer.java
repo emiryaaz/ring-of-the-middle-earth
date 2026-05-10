@@ -8,7 +8,7 @@ import org.apache.kafka.streams.state.KeyValueStore;
 public class OrderValidationTransformer implements ValueTransformerWithKey<String, String, OrderValidationTopology.ValidationResult> {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    private static final int CURRENT_TURN = 1;
+    private static final int CURRENT_TURN = 2;
 
     private final String turnStoreName;
     private final String unitStoreName;
@@ -83,14 +83,17 @@ if ("BLOCK_PATH".equals(order.orderType)) {
     }
 }
 
-            String duplicateKey = "turn:" + order.turn + ":unit:" + order.unitId;
+boolean shouldCheckDuplicate = !"TURN_TICK".equals(order.orderType);
 
-            if (dedupStore.get(duplicateKey) != null) {
-                return invalid("DUPLICATE_UNIT_ORDER", "Same unit already has an order this turn", rawJson);
-            }
+if (shouldCheckDuplicate) {
+    String duplicateKey = "turn:" + order.turn + ":unit:" + order.unitId;
 
-            dedupStore.put(duplicateKey, "seen");
+    if (dedupStore.get(duplicateKey) != null) {
+        return invalid("DUPLICATE_UNIT_ORDER", "Same unit already has an order this turn", rawJson);
+    }
 
+    dedupStore.put(duplicateKey, "seen");
+}
             return OrderValidationTopology.ValidationResult.valid(rawJson);
 
         } catch (Exception e) {
