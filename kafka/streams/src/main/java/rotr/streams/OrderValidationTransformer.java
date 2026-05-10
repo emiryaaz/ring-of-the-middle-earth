@@ -45,11 +45,43 @@ public class OrderValidationTransformer implements ValueTransformerWithKey<Strin
                 return invalid("WRONG_TURN", "Order turn does not match current turn", rawJson);
             }
 
-            String unitOwnerSide = getKnownUnitOwner(order.unitId);
+UnitStateRecord unit = GameUnitRegistry.getUnit(order.unitId);
 
-	if (unitOwnerSide != null && !unitOwnerSide.equals(order.playerId)) {
-	    return invalid("NOT_YOUR_UNIT", "Unit does not belong to submitting player", rawJson);
-	}
+if (unit != null) {
+
+    if (!unit.side.equals(order.playerId)) {
+        return invalid("NOT_YOUR_UNIT", "Unit does not belong to submitting player", rawJson);
+    }
+
+    boolean specialAbility =
+            order.orderType.equals("CAST_SPELL") ||
+            order.orderType.equals("SPECIAL_ATTACK");
+
+    if (specialAbility && unit.cooldown > 0) {
+        return invalid(
+                "ABILITY_ON_COOLDOWN",
+                "Unit ability is currently on cooldown",
+                rawJson
+        );
+    }
+
+}
+
+if ("BLOCK_PATH".equals(order.orderType)) {
+    OrderPayload payload = MAPPER.readValue(order.payload, OrderPayload.class);
+
+    if (payload.pathId == null || !PathRegistry.exists(payload.pathId)) {
+        return invalid("INVALID_PATH", "Path does not exist", rawJson);
+    }
+
+    if (unit == null || unit.region == null || !PathRegistry.isEndpoint(payload.pathId, unit.region)) {
+        return invalid(
+                "UNIT_NOT_ADJACENT",
+                "Unit is not located at one of the path endpoint regions",
+                rawJson
+        );
+    }
+}
 
             String duplicateKey = "turn:" + order.turn + ":unit:" + order.unitId;
 
@@ -65,14 +97,6 @@ public class OrderValidationTransformer implements ValueTransformerWithKey<Strin
             return invalid("DESERIALIZATION_ERROR", e.getMessage(), rawJson);
         }
     }
-
-private String getKnownUnitOwner(String unitId) {
-    return switch (unitId) {
-        case "aragorn", "legolas", "gimli", "ring-bearer", "rohan-cavalry", "gondor-army", "gandalf" -> "light";
-        case "witch-king", "nazgul-2", "nazgul-3", "uruk-hai-legion", "saruman", "sauron" -> "dark";
-        default -> null;
-    };
-}
 
     private OrderValidationTopology.ValidationResult invalid(String code, String message, String rawJson) {
         return OrderValidationTopology.ValidationResult.invalid(
