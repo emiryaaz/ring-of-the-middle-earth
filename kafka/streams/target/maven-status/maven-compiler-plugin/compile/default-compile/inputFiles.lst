@@ -2,6 +2,7 @@
 /home/emirygz/Masaüstü/ring-of-the-middle-earth/kafka/streams/src/main/java/rotr/streams/UnitStateRecord.java
 /home/emirygz/Masaüstü/ring-of-the-middle-earth/kafka/streams/src/main/java/rotr/streams/DLQRecord.java
 /home/emirygz/Masaüstü/ring-of-the-middle-earth/kafka/streams/src/main/java/rotr/streams/PathRegistry.java
+/home/emirygz/Masaüstü/ring-of-the-middle-earth/kafka/streams/src/main/java/rotr/streams/PathStateRecord.java
 /home/emirygz/Masaüstü/ring-of-the-middle-earth/kafka/streams/src/main/java/rotr/streams/UnitOwnershipRegistry.java
 /home/emirygz/Masaüstü/ring-of-the-middle-earth/kafka/streams/src/main/java/rotr/streams/SessionRecord.java
 /home/emirygz/Masaüstü/ring-of-the-middle-earth/kafka/streams/src/main/java/rotr/streams/OrderValidationTransformer.java

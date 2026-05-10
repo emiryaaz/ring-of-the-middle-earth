@@ -44,6 +44,7 @@ private static void restoreUnitStates() {
 
     public static void main(String[] args) {
 	restoreUnitStates();
+        restorePathStates();
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProps("game-engine-app"));
         KafkaProducer<String, String> producer = new KafkaProducer<>(producerProps());
 
@@ -72,6 +73,10 @@ if ("BLOCK_PATH".equals(order.orderType)) {
     }
 
     PathRegistry.blockPath(payload.pathId);
+PathStateRecord pathState = new PathStateRecord(payload.pathId, true, System.currentTimeMillis());
+String pathStateJson = MAPPER.writeValueAsString(pathState);
+producer.send(new ProducerRecord<>("game.events.path", payload.pathId, pathStateJson));
+
 
     System.out.println("Blocked path: " + payload.pathId);
 }
@@ -90,7 +95,9 @@ if ("UNBLOCK_PATH".equals(order.orderType)) {
     }
 
     PathRegistry.unblockPath(payload.pathId);
-
+    PathStateRecord pathState = new PathStateRecord(payload.pathId, false, System.currentTimeMillis());
+String pathStateJson = MAPPER.writeValueAsString(pathState);
+producer.send(new ProducerRecord<>("game.events.path", payload.pathId, pathStateJson));
     System.out.println("Unblocked path: " + payload.pathId);
 }
 if ("TURN_TICK".equals(order.orderType)) {
@@ -195,4 +202,36 @@ if (existing != null) {
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         return props;
     }
+
+    private static void restorePathStates() {
+    KafkaConsumer<String, String> restoreConsumer =
+            new KafkaConsumer<>(consumerProps("game-engine-path-restore-" + System.currentTimeMillis()));
+
+    restoreConsumer.subscribe(Collections.singletonList("game.events.path"));
+
+    long start = System.currentTimeMillis();
+
+    while (System.currentTimeMillis() - start < 3000) {
+        var records = restoreConsumer.poll(Duration.ofMillis(500));
+
+        records.forEach(record -> {
+            try {
+                PathStateRecord pathState = MAPPER.readValue(record.value(), PathStateRecord.class);
+
+                if (pathState.blocked) {
+                    PathRegistry.blockPath(pathState.pathId);
+                    System.out.println("Restored blocked path: " + pathState.pathId);
+                } else {
+                    PathRegistry.unblockPath(pathState.pathId);
+                    System.out.println("Restored unblocked path: " + pathState.pathId);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    restoreConsumer.close();
+}
 }
