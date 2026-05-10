@@ -7,6 +7,9 @@ public class UnitStateRecord {
     public int cooldown;
     public String status;
 
+    public String[] route;
+    public int routeIdx;
+
     public UnitStateRecord() {
     }
 }

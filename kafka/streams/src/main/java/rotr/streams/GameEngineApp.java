@@ -32,24 +32,30 @@ public class GameEngineApp {
                 try {
                     OrderRecord order = MAPPER.readValue(record.value(), OrderRecord.class);
 
-                    if ("ASSIGN_ROUTE".equals(order.orderType)) {
-                        UnitStateRecord unit = GameUnitRegistry.getUnit(order.unitId);
+if ("ASSIGN_ROUTE".equals(order.orderType)) {
+    UnitStateRecord unit = GameUnitRegistry.getUnit(order.unitId);
 
-                        if (unit == null) {
-                            System.out.println("Unknown unit: " + order.unitId);
-                            return;
-                        }
+    if (unit == null) {
+        System.out.println("Unknown unit: " + order.unitId);
+        return;
+    }
 
-                        String eventJson = MAPPER.writeValueAsString(unit);
+    OrderPayload payload = MAPPER.readValue(order.payload, OrderPayload.class);
 
-                        ProducerRecord<String, String> event =
-                                new ProducerRecord<>("game.events.unit", order.unitId, eventJson);
+    if (payload.pathIds != null) {
+        unit.route = payload.pathIds;
+        unit.routeIdx = 0;
+    }
 
-                        producer.send(event);
+    String eventJson = MAPPER.writeValueAsString(unit);
 
-                        System.out.println("Produced unit event for " + order.unitId + ": " + eventJson);
-                    }
+    ProducerRecord<String, String> event =
+            new ProducerRecord<>("game.events.unit", order.unitId, eventJson);
 
+    producer.send(event);
+
+    System.out.println("Produced unit event for " + order.unitId + ": " + eventJson);
+}
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

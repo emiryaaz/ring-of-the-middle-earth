@@ -24,6 +24,8 @@ public class GameUnitRegistry {
         unit.region = region;
         unit.cooldown = cooldown;
         unit.status = "ACTIVE";
+        unit.route = new String[0];
+	unit.routeIdx = 0;
 
         return unit;
     }
