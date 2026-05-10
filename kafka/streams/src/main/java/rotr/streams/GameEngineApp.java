@@ -19,8 +19,32 @@ public class GameEngineApp {
 
     private static final java.util.Map<String, UnitStateRecord> unitStates = new java.util.HashMap<>();
 
+private static void restoreUnitStates() {
+    KafkaConsumer<String, String> restoreConsumer = new KafkaConsumer<>(consumerProps("game-engine-restore-" + System.currentTimeMillis()));
+    restoreConsumer.subscribe(Collections.singletonList("game.events.unit"));
+
+    long start = System.currentTimeMillis();
+
+    while (System.currentTimeMillis() - start < 3000) {
+        var records = restoreConsumer.poll(Duration.ofMillis(500));
+
+        records.forEach(record -> {
+            try {
+                UnitStateRecord unit = MAPPER.readValue(record.value(), UnitStateRecord.class);
+                unitStates.put(unit.unitId, unit);
+                System.out.println("Restored unit state: " + unit.unitId + " -> " + unit.region);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    restoreConsumer.close();
+}
+
     public static void main(String[] args) {
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProps());
+	restoreUnitStates();
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProps("game-engine-app"));
         KafkaProducer<String, String> producer = new KafkaProducer<>(producerProps());
 
         consumer.subscribe(Collections.singletonList("game.orders.validated"));
@@ -154,10 +178,10 @@ if (existing != null) {
         }
     }
 
-    private static Properties consumerProps() {
+    private static Properties consumerProps(String groupId) {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "game-engine-app");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
