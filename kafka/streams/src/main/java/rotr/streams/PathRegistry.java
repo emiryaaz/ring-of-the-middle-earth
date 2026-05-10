@@ -9,6 +9,7 @@ public class PathRegistry {
             Map.entry("shire-to-bree", Set.of("the-shire", "bree")),
             Map.entry("bree-to-weathertop", Set.of("bree", "weathertop")),
             Map.entry("bree-to-rivendell", Set.of("bree", "rivendell")),
+            Map.entry("rivendell-to-moria", Set.of("rivendell", "moria")),
             Map.entry("bree-to-tharbad", Set.of("bree", "tharbad")),
             Map.entry("shire-to-tharbad", Set.of("the-shire", "tharbad")),
 

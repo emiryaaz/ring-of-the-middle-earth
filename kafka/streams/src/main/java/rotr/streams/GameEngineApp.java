@@ -62,6 +62,10 @@ if ("TURN_TICK".equals(order.orderType)) {
     unit.region = nextRegion;
     unit.routeIdx++;
 
+if (unit.routeIdx >= unit.route.length) {
+    unit.status = "IDLE";
+}
+
     unitStates.put(unit.unitId, unit);
 
     String eventJson = MAPPER.writeValueAsString(unit);
