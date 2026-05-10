@@ -3,15 +3,19 @@ package rotr.streams;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.*;
-import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Produced;
 
 import java.util.Properties;
 
 public class OrderValidationTopology {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    private static final int CURRENT_TURN = 1;
+    private static final String DEDUP_STORE = "unit-order-store";
 
     public static void main(String[] args) {
         Properties props = new Properties();
@@ -20,26 +24,43 @@ public class OrderValidationTopology {
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         props.put(StreamsConfig.STATE_DIR_CONFIG, "/tmp/kafka-streams-order-validation");
+        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
+        props.put(StreamsConfig.consumerPrefix("auto.offset.reset"), "earliest");
 
         StreamsBuilder builder = new StreamsBuilder();
 
+        builder.addStateStore(
+                org.apache.kafka.streams.state.Stores.keyValueStoreBuilder(
+                        org.apache.kafka.streams.state.Stores.persistentKeyValueStore(DEDUP_STORE),
+                        Serdes.String(),
+                        Serdes.String()
+                )
+        );
+
+        KTable<String, String> turnTable = builder.table("game.session");
+        KTable<String, String> unitTable = builder.table("game.events.unit");
+
         KStream<String, String> rawOrders = builder.stream("game.orders.raw");
 
-        KStream<String, ValidationResult>[] branches = rawOrders
-                .mapValues(OrderValidationTopology::validateOrder)
-                .branch(
-                        (key, value) -> value.valid,
-                        (key, value) -> !value.valid
-                );
+        KStream<String, ValidationResult> validationResults = rawOrders.transformValues(
+                () -> new OrderValidationTransformer(
+                        turnTable.queryableStoreName(),
+                        unitTable.queryableStoreName(),
+                        DEDUP_STORE
+                ),
+                DEDUP_STORE
+        );
 
-        KStream<String, ValidationResult> validOrders = branches[0];
-        KStream<String, ValidationResult> invalidOrders = branches[1];
+        KStream<String, ValidationResult>[] branches = validationResults.branch(
+                (key, value) -> value.valid,
+                (key, value) -> !value.valid
+        );
 
-        validOrders
+        branches[0]
                 .mapValues(v -> v.originalJson)
                 .to("game.orders.validated", Produced.with(Serdes.String(), Serdes.String()));
 
-        invalidOrders
+        branches[1]
                 .mapValues(v -> {
                     try {
                         return MAPPER.writeValueAsString(v.dlqRecord);
@@ -55,74 +76,23 @@ public class OrderValidationTopology {
         streams.start();
     }
 
-    private static ValidationResult validateOrder(String rawJson) {
-        try {
-            OrderRecord order = MAPPER.readValue(rawJson, OrderRecord.class);
-
-            if (order.playerId == null || order.playerId.isBlank()
-                    || order.unitId == null || order.unitId.isBlank()
-                    || order.orderType == null || order.orderType.isBlank()) {
-                return ValidationResult.invalid(
-                        new DLQRecord(
-                                "game.orders.raw",
-                                0,
-                                0,
-                                "INVALID_ORDER",
-                                "Missing required fields",
-                                rawJson,
-                                System.currentTimeMillis()
-                        )
-                );
-            }
-
-            if (order.turn != CURRENT_TURN) {
-                return ValidationResult.invalid(
-                        new DLQRecord(
-                                "game.orders.raw",
-                                0,
-                                0,
-                                "WRONG_TURN",
-                                "Order turn does not match current turn",
-                                rawJson,
-                                System.currentTimeMillis()
-                        )
-                );
-            }
-
-            return ValidationResult.valid(rawJson);
-
-        } catch (Exception e) {
-            return ValidationResult.invalid(
-                    new DLQRecord(
-                            "game.orders.raw",
-                            0,
-                            0,
-                            "DESERIALIZATION_ERROR",
-                            e.getMessage(),
-                            rawJson,
-                            System.currentTimeMillis()
-                    )
-            );
-        }
-    }
-
     static class ValidationResult {
         boolean valid;
         String originalJson;
         DLQRecord dlqRecord;
 
         static ValidationResult valid(String json) {
-            ValidationResult r = new ValidationResult();
-            r.valid = true;
-            r.originalJson = json;
-            return r;
+            ValidationResult result = new ValidationResult();
+            result.valid = true;
+            result.originalJson = json;
+            return result;
         }
 
         static ValidationResult invalid(DLQRecord dlq) {
-            ValidationResult r = new ValidationResult();
-            r.valid = false;
-            r.dlqRecord = dlq;
-            return r;
+            ValidationResult result = new ValidationResult();
+            result.valid = false;
+            result.dlqRecord = dlq;
+            return result;
         }
     }
 }

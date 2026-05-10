@@ -1,4 +1,7 @@
-rotr/streams/OrderValidationTopology$ValidationResult.class
-rotr/streams/DLQRecord.class
 rotr/streams/OrderRecord.class
 rotr/streams/OrderValidationTopology.class
+rotr/streams/OrderValidationTopology$ValidationResult.class
+rotr/streams/DLQRecord.class
+rotr/streams/OrderValidationTransformer.class
+rotr/streams/UnitStateRecord.class
+rotr/streams/SessionRecord.class
