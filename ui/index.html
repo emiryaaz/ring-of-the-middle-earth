@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ring of the Middle Earth</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #111;
+      color: #eee;
+    }
+
+    h1 {
+      color: #7dd3fc;
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+    }
+
+    .panel {
+      flex: 1;
+      border: 1px solid #444;
+      padding: 16px;
+      border-radius: 8px;
+      background: #1a1a1a;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      margin-top: 8px;
+      margin-bottom: 12px;
+      padding: 8px;
+      border-radius: 4px;
+      border: none;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+    }
+
+    #events {
+      height: 500px;
+      overflow-y: auto;
+      background: #000;
+      padding: 8px;
+      font-family: monospace;
+      font-size: 13px;
+    }
+
+    .event {
+      border-bottom: 1px solid #333;
+      padding: 6px 0;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Ring of the Middle Earth</h1>
+
+<div class="container">
+
+  <div class="panel">
+    <h2>Send Order</h2>
+
+    <input id="playerId" placeholder="playerId" value="light" />
+    <input id="unitId" placeholder="unitId" value="test-unit-3" />
+    <input id="orderType" placeholder="orderType" value="ASSIGN_ROUTE" />
+    <textarea id="payload">
+{"pathIds":["bree-to-rivendell"]}
+    </textarea>
+
+    <button onclick="sendOrder()">Send Order</button>
+  </div>
+
+  <div class="panel">
+    <h2>Live Events</h2>
+
+    <div id="events"></div>
+  </div>
+
+</div>
+
+<script src="game.js"></script>
+
+</body>
+</html>

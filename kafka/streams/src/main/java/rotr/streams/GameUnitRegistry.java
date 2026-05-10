@@ -13,6 +13,7 @@ public class GameUnitRegistry {
             Map.entry("test-unit", create("test-unit", "light", "bree", 0)),
             Map.entry("test-unit-2", create("test-unit-2", "light", "bree", 0)),
             Map.entry("test-unit-3", create("test-unit-3", "light", "bree", 0)),
+            Map.entry("test-unit-4", create("test-unit-5", "light", "bree", 0)),
 
             Map.entry("gandalf", create("gandalf", "light", "rohan", 2)),
 
