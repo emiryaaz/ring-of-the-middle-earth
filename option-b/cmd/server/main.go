@@ -49,10 +49,20 @@ func main() {
 	)
 	defer eventConsumer.Close()
 
-	eventConsumer.Start(ctx, func(topic string, value []byte) {
-		eventHub.Broadcast(fmt.Sprintf(`{"topic":"%s","value":%s}`, topic, string(value)))
-	})
+eventConsumer.Start(ctx, func(topic string, value []byte) {
+	message := fmt.Sprintf(`{"topic":"%s","value":%s}`, topic, string(value))
 
+	switch topic {
+	case "game.ring.position":
+		eventHub.BroadcastLight(message)
+
+	case "game.ring.detection":
+		eventHub.BroadcastDark(message)
+
+	default:
+		eventHub.BroadcastBoth(message)
+	}
+})
 	orderHandler := httpapi.NewOrderHandler(producer)
 
 	mux := http.NewServeMux()

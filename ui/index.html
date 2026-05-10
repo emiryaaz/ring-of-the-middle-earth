@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>Ring of the Middle Earth</title>
@@ -16,6 +17,27 @@
       color: #7dd3fc;
     }
 
+<div class="map">
+  <div class="region" id="region-bree">
+    <h3>Bree</h3>
+    <div class="units"></div>
+  </div>
+
+  <div class="path">───</div>
+
+  <div class="region" id="region-rivendell">
+    <h3>Rivendell</h3>
+    <div class="units"></div>
+  </div>
+
+  <div class="path">───</div>
+
+  <div class="region" id="region-moria">
+    <h3>Moria</h3>
+    <div class="units"></div>
+  </div>
+</div>
+
     .container {
       display: flex;
       gap: 20px;
@@ -29,13 +51,16 @@
       background: #1a1a1a;
     }
 
-    input, textarea, button {
+    input,
+    textarea,
+    button {
       width: 100%;
       margin-top: 8px;
       margin-bottom: 12px;
       padding: 8px;
       border-radius: 4px;
       border: none;
+      box-sizing: border-box;
     }
 
     button {
@@ -44,8 +69,8 @@
       cursor: pointer;
     }
 
-    #events {
-      height: 500px;
+    .events {
+      height: 400px;
       overflow-y: auto;
       background: #000;
       padding: 8px;
@@ -59,34 +84,43 @@
     }
   </style>
 </head>
+
 <body>
 
-<h1>Ring of the Middle Earth</h1>
+  <h1>Ring of the Middle Earth</h1>
 
-<div class="container">
+  <div class="container">
 
-  <div class="panel">
-    <h2>Send Order</h2>
+    <div class="panel">
+      <h2>Light Side</h2>
 
-    <input id="playerId" placeholder="playerId" value="light" />
-    <input id="unitId" placeholder="unitId" value="test-unit-3" />
-    <input id="orderType" placeholder="orderType" value="ASSIGN_ROUTE" />
-    <textarea id="payload">
-{"pathIds":["bree-to-rivendell"]}
-    </textarea>
+      <input id="lightUnitId" placeholder="unitId" value="test-unit-5" />
+      <input id="lightOrderType" placeholder="orderType" value="ASSIGN_ROUTE" />
+      <textarea id="lightPayload">{"pathIds":["bree-to-rivendell"]}</textarea>
 
-    <button onclick="sendOrder()">Send Order</button>
+      <button onclick="sendOrder('light')">Send Light Order</button>
+
+      <h3>Light Events</h3>
+      <div id="lightEvents" class="events"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Dark Side</h2>
+
+      <input id="darkUnitId" placeholder="unitId" value="witch-king" />
+      <input id="darkOrderType" placeholder="orderType" value="BLOCK_PATH" />
+      <textarea id="darkPayload">{"pathId":"bree-to-rivendell"}</textarea>
+
+      <button onclick="sendOrder('dark')">Send Dark Order</button>
+
+      <h3>Dark Events</h3>
+      <div id="darkEvents" class="events"></div>
+    </div>
+
   </div>
 
-  <div class="panel">
-    <h2>Live Events</h2>
-
-    <div id="events"></div>
-  </div>
-
-</div>
-
-<script src="game.js"></script>
+  <script src="game.js"></script>
 
 </body>
+
 </html>

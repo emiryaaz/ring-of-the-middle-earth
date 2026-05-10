@@ -1,0 +1,85 @@
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background: #111;
+    color: #eee;
+  }
+
+  h1 { color: #7dd3fc; }
+
+  .container {
+    display: flex;
+    gap: 20px;
+  }
+
+  .panel {
+    flex: 1;
+    border: 1px solid #444;
+    padding: 16px;
+    border-radius: 8px;
+    background: #1a1a1a;
+  }
+
+  input, textarea, button {
+    width: 100%;
+    margin: 8px 0 12px;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+
+  button {
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 4px;
+  }
+
+  .events {
+    height: 350px;
+    overflow-y: auto;
+    background: #000;
+    padding: 8px;
+    font-family: monospace;
+    font-size: 13px;
+  }
+
+  .event {
+    border-bottom: 1px solid #333;
+    padding: 6px 0;
+  }
+.map {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.region {
+  width: 180px;
+  min-height: 120px;
+  border: 2px solid #555;
+  border-radius: 10px;
+  padding: 12px;
+  background: #222;
+}
+
+.region h3 {
+  margin-top: 0;
+  color: #facc15;
+}
+
+.path {
+  color: #aaa;
+  font-size: 28px;
+}
+
+.unit {
+  background: #2563eb;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin: 4px 0;
+  font-size: 13px;
+}
+</style>
